@@ -29,7 +29,7 @@ if __name__ == "__main__":
     parser.add_argument(
       '--output',
       dest='output',
-      default = "output/output_json.json",
+      default = "output/",
       help='Output file to write results to.')
 
     args = parser.parse_args()
