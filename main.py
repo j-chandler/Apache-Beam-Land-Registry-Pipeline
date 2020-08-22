@@ -1,17 +1,37 @@
 
 import argparse
+import os
 
 
 import apache_beam as beam
+from apache_beam.options.pipeline_options import PipelineOptions
+from apache_beam.io import ReadFromText
 
 
 
 
 if __name__ == "__main__":
+    ########## ARGUMENT PARSING ###########
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+      '--input',
+      dest='input',
+      required = True,
+      help='Input file to process.')
+
+    parser.add_argument(
+      '--output',
+      dest='output',
+      default = "output/output_json.json",
+      help='Output file to write results to.')
+
+    args = parser.parse_args()
+
+
+    ########## PIPELINE CREATION ###########
     pipeline_options = PipelineOptions(
         temp_location = "tmp/",
-        save_main_session = False,
-        setup_file = os.path.join(os.getcwd(), "setup.py")
+        save_main_session = False
     )
 
     p = beam.Pipeline(
@@ -19,7 +39,7 @@ if __name__ == "__main__":
         options = pipeline_options
     )
 
-    #p = p | "Reading CSV Data" >> 
+    data = p | "Reading CSV Data" >> ReadFromText(args.input)
 
     """
     Breaking down the task
@@ -30,7 +50,9 @@ if __name__ == "__main__":
 
     - Attach meta data about property to Unique Property Identifier
 
-    - Group Transcations by Unique Property Identifier in it's own list?
+    - Group Transactions by Unique Property Identifier
+
+    - CoGroupByKey on Unique Property Identifier
 
     - Output to JSON
 
@@ -41,4 +63,9 @@ if __name__ == "__main__":
     that duplication is intended in the data or not.
 
     """
+
+    ####### SAMPLE TESTING #######
+    data = data | "Printing" >> beam.Map(print)
+    p.run()
+
 
