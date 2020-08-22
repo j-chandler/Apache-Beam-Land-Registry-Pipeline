@@ -62,13 +62,11 @@ if __name__ == "__main__":
         | "Grouping Transactions" >> beam.GroupByKey()
     )
 
-    '''
     property_data = (
         data 
         | "Separating Property Address Data" >> beam.ParDo(AddressSeparatorFn())
-        #| "Removing Propery Address Data Duplicates" >> beam.GroupByKey()
+        | "Removing Propery Address Data Duplicates" >> Distinct()
     )
-    '''
 
     """
     Breaking down the task
@@ -94,7 +92,7 @@ if __name__ == "__main__":
     """
 
     ####### SAMPLE TESTING #######
-    data = transactions | "Printing" >> beam.Map(print)
+    data = property_data | "Printing" >> beam.Map(print)
     p.run()
 
 

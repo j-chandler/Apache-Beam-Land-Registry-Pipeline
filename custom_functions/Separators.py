@@ -40,14 +40,14 @@ class AddressSeparatorFn(beam.DoFn):
     ]
 
     def process(self, element):
-        data = {}
+        data = []
 
         try:
             for col in self.address_columns:
-                data[col] = element[col]
+                data.append(element[col])
         except:
             ##TODO: Handle missing columns
             print(("Missing Columns", element, self.address_columns))
 
-        yield (element["Property Name"], data)
+        yield (element["Property Name"], *data)
 
