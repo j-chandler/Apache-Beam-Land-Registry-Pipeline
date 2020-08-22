@@ -9,6 +9,7 @@ from apache_beam.options.pipeline_options import PipelineOptions
 from apache_beam.io import ReadFromText
 
 from custom_functions.PropertyIdentifierFn import PropertyIdentifierFn
+from custom_functions.TransactionSeparatorFn import TransactionSeparatorFn
 
 
 
@@ -53,6 +54,9 @@ if __name__ == "__main__":
         | "Creating Unique Property Key" >> beam.ParDo(PropertyIdentifierFn())
     )
 
+    transactions = data | "Separating Transactions" >> beam.ParDo(TransactionSeparatorFn())
+    #property_data = data | "Separating Property Address Data" >>
+
     """
     Breaking down the task
 
@@ -77,7 +81,7 @@ if __name__ == "__main__":
     """
 
     ####### SAMPLE TESTING #######
-    data = data | "Printing" >> beam.Map(print)
+    data = transactions | "Printing" >> beam.Map(print)
     p.run()
 
 
