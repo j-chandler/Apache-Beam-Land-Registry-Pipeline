@@ -29,3 +29,29 @@ class TransactionSeparatorFn(beam.DoFn):
             element["Property Name"] : transaction_data
         }
 
+
+class AddressSeparatorFn(beam.DoFn):
+    address_columns = [
+        "PAON",
+        "SAON",
+        "Street",
+        "Locality",
+        "Town/City",
+        "District",
+        "County"
+    ]
+
+    def process(self, element):
+        data = {}
+
+        try:
+            for col in self.address_columns:
+                data[col] = element[col]
+        except:
+            ##TODO: Handle missing columns
+            print(("Missing Columns", element, self.address_columns))
+
+        yield {
+            element["Property Name"] : data
+        }
+

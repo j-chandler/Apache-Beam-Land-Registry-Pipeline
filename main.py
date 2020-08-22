@@ -5,11 +5,12 @@ import csv
 
 
 import apache_beam as beam
-from apache_beam.options.pipeline_options import PipelineOptions
 from apache_beam.io import ReadFromText
+from apache_beam.options.pipeline_options import PipelineOptions
+
 
 from custom_functions.PropertyIdentifierFn import PropertyIdentifierFn
-from custom_functions.TransactionSeparatorFn import TransactionSeparatorFn
+from custom_functions.Separators import TransactionSeparatorFn, AddressSeparatorFn
 
 
 
@@ -54,8 +55,16 @@ if __name__ == "__main__":
         | "Creating Unique Property Key" >> beam.ParDo(PropertyIdentifierFn())
     )
 
-    transactions = data | "Separating Transactions" >> beam.ParDo(TransactionSeparatorFn())
-    #property_data = data | "Separating Property Address Data" >>
+    transactions = (
+        data 
+        | "Separating Transactions" >> beam.ParDo(TransactionSeparatorFn())
+    )
+
+    property_data = (
+        data 
+        | "Separating Property Address Data" >> beam.ParDo(AddressSeparatorFn())
+
+    )
 
     """
     Breaking down the task
@@ -81,7 +90,7 @@ if __name__ == "__main__":
     """
 
     ####### SAMPLE TESTING #######
-    data = transactions | "Printing" >> beam.Map(print)
+    data = property_data | "Printing" >> beam.Map(print)
     p.run()
 
 
