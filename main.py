@@ -9,6 +9,61 @@ from apache_beam.io import ReadFromText
 
 
 
+class PropertyIdentifierFn(beam.DoFn):
+    headers = [
+        "Transaction Unique Identifier", 
+        "Price",
+        "Date of Transfer",
+        "Postcode",
+        "Property Type",
+        "Old/New",
+        "Duration",
+        "PAON",
+        "SAON",
+        "Street",
+        "Locality",
+        "Town/City",
+        "District",
+        "County",
+        "PPD Category Type",
+        "Record Status"
+    ]
+
+    def process(self, element):
+        row = {}
+
+        try:
+            cells = element.split(",")
+
+            for i, data in cells.enumerate():
+                try:
+                    row[self.headers[i]] = data
+                except:
+                    print((i, data))
+                    #TODO: Handle Incorrect Column Amounts
+
+
+            ###### Joining Cells To Create Overall Property Name #######
+            row["Property Name"] = """
+            {PAON} {SAON} {Street} {Locality} {City} {District} {County}
+            """.format(
+                PAON = row["PAON"],
+                SAON = row["SAON"],
+                Street = row["Street"],
+                Locality = row["Locality"],
+                City = row["Town/City"],
+                District = row["District"],
+                County = row["County"]
+            )
+
+
+        except:
+            #TODO: Handle String Error Appropriately
+            print("Element Not A String")
+
+        yield row
+
+
 
 if __name__ == "__main__":
     ########## ARGUMENT PARSING ###########
@@ -31,7 +86,7 @@ if __name__ == "__main__":
     ########## PIPELINE CREATION ###########
     pipeline_options = PipelineOptions(
         temp_location = "tmp/",
-        save_main_session = False
+        save_main_session = True
     )
 
     p = beam.Pipeline(
@@ -39,7 +94,11 @@ if __name__ == "__main__":
         options = pipeline_options
     )
 
-    data = p | "Reading CSV Data" >> ReadFromText(args.input)
+    data = (
+        p
+        | "Reading CSV Data" >> ReadFromText(args.input)
+        | "Creating Unique Property Key" >> beam.ParDo(PropertyIdentifierFn())
+    )
 
     """
     Breaking down the task
