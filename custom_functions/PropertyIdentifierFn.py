@@ -55,6 +55,4 @@ class PropertyIdentifierFn(beam.DoFn):
                 else:
                     property_name += " {}".format(placement)
 
-        row["Property Name"] = property_name
-
-        yield row
+        yield (property_name, row)

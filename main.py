@@ -11,7 +11,6 @@ from apache_beam.transforms.util import Distinct
 
 
 from custom_functions.PropertyIdentifierFn import PropertyIdentifierFn
-from custom_functions.Separators import TransactionSeparatorFn, AddressSeparatorFn
 
 
 
@@ -54,19 +53,9 @@ if __name__ == "__main__":
         | "Reading CSV File" >> ReadFromText(args.input)
         | "Parsing CSV Data" >> beam.Map(parse_csv_data)
         | "Creating Unique Property Key" >> beam.ParDo(PropertyIdentifierFn())
-    )
-
-    transactions = (
-        data 
-        | "Separating Transactions" >> beam.ParDo(TransactionSeparatorFn())
         | "Grouping Transactions" >> beam.GroupByKey()
     )
 
-    property_data = (
-        data 
-        | "Separating Property Address Data" >> beam.ParDo(AddressSeparatorFn())
-        | "Removing Propery Address Data Duplicates" >> Distinct()
-    )
 
     """
     Breaking down the task
@@ -92,7 +81,7 @@ if __name__ == "__main__":
     """
 
     ####### SAMPLE TESTING #######
-    data = property_data | "Printing" >> beam.Map(print)
+    data = data | "Printing" >> beam.Map(print)
     p.run()
 
 

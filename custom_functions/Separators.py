@@ -12,7 +12,14 @@ class TransactionSeparatorFn(beam.DoFn):
         "Old/New",
         "Duration",
         "PPD Category Type",
-        "Record Status"
+        "Record Status",
+        "PAON",
+        "SAON",
+        "Street",
+        "Locality",
+        "Town/City",
+        "District",
+        "County"
     ]
 
     def process(self, element):
