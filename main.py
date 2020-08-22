@@ -53,6 +53,7 @@ if __name__ == "__main__":
         | "Creating Unique Property Key" >> beam.ParDo(PropertyIdentifierFn())
         | "Grouping Transactions" >> beam.GroupByKey()
         | "Formatting Results" >> beam.ParDo(JSONFormatterFn())
+        #| "Writing To Files" >> 
     )
 
 
