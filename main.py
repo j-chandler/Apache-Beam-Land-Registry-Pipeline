@@ -59,31 +59,3 @@ if __name__ == "__main__":
     )
 
 
-    """
-    Breaking down the task
-
-    - Read CSV data
-
-    - Create Unique Property Identifier by combining some columns to create a new column
-
-    - Attach meta data about property to Unique Property Identifier
-
-    - Group Transactions by Unique Property Identifier
-
-    - CoGroupByKey on Unique Property Identifier
-
-    - Output to JSON
-
-    - Include arg parsing for reading csv file of choice and outputting to filename of choice
-
-    I noticed some duplicate records, for now as long as they have different IDs I have let them through
-    Later it might be a good idea to check for this in an analytics tool such as BigQ to investigate whether
-    that duplication is intended in the data or not.
-
-    """
-
-    ####### SAMPLE TESTING #######
-    data = data | "Printing" >> beam.Map(print)
-    p.run()
-
-

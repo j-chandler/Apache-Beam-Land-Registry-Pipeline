@@ -44,7 +44,7 @@ class _NewlineJsonSink(FileBasedSink):
             file_handle.write(self.coder.encode('\n'))
         else:
             self.first_write = True
-            
+
         file_handle.write(self.coder.encode(json.dumps(value)))
 
 
@@ -79,5 +79,4 @@ class WriteToNewlineJsonSink(PTransform):
 
     def expand(self, pcoll):
         return pcoll | Write(self._sink)
-
 
