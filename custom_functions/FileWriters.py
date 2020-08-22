@@ -4,7 +4,7 @@ import json
 
 from apache_beam.io.filebasedsink import FileBasedSink
 from apache_beam.io.iobase import Write
-from apache_beam.coders.coders import StrUtf8Coder
+from apache_beam.coders.coders import ToStringCoder
 from apache_beam.transforms import PTransform
 
 
@@ -14,7 +14,7 @@ class _NewlineJsonSink(FileBasedSink):
     def __init__(
         self,
         file_path_prefix, 
-        coder = StrUtf8Coder(), 
+        coder = ToStringCoder(), 
         file_name_suffix='.json', 
         num_shards=0, 
         shard_name_template=None, 
@@ -31,14 +31,20 @@ class _NewlineJsonSink(FileBasedSink):
             compression_type=compression_type
         )
 
+        self.first_write = False
+
     def open(self, temp_path):
-        file_handle = open(temp_path)
+        file_handle = super().open(temp_path)
         return file_handle
 
 
     def write_record(self, file_handle, value):
         """Writes a single encoded record converted to JSON, preceded by a newline"""
-        file_handle.write('\n')
+        if self.first_write:
+            file_handle.write(self.coder.encode('\n'))
+        else:
+            self.first_write = True
+            
         file_handle.write(self.coder.encode(json.dumps(value)))
 
 
@@ -51,7 +57,7 @@ class WriteToNewlineJsonSink(PTransform):
     def __init__(
         self,
         file_path_prefix, 
-        coder = StrUtf8Coder(), 
+        coder = ToStringCoder(), 
         file_name_suffix='.json', 
         num_shards=0, 
         shard_name_template=None, 

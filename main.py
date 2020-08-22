@@ -7,9 +7,11 @@ import csv
 import apache_beam as beam
 from apache_beam.io import ReadFromText
 from apache_beam.options.pipeline_options import PipelineOptions
+from apache_beam.coders.coders import ToStringCoder
 
 from custom_functions.PropertyIdentifierFn import PropertyIdentifierFn
 from custom_functions.Formatters import JSONFormatterFn
+from custom_functions.FileWriters import WriteToNewlineJsonSink
 
 
 def parse_csv_data(element):
@@ -29,7 +31,7 @@ if __name__ == "__main__":
     parser.add_argument(
       '--output',
       dest='output',
-      default = "output/",
+      default = "output/newline_data",
       help='Output file to write results to.')
 
     args = parser.parse_args()
@@ -53,7 +55,7 @@ if __name__ == "__main__":
         | "Creating Unique Property Key" >> beam.ParDo(PropertyIdentifierFn())
         | "Grouping Transactions" >> beam.GroupByKey()
         | "Formatting Results" >> beam.ParDo(JSONFormatterFn())
-        #| "Writing To Files" >> 
+        | "Writing To Files" >> WriteToNewlineJsonSink(args.output, coder = ToStringCoder())
     )
 
 
