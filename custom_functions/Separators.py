@@ -25,9 +25,7 @@ class TransactionSeparatorFn(beam.DoFn):
             ##TODO: Handle missing columns
             print(("Missing Columns", element, self.transaction_columns))
 
-        yield {
-            element["Property Name"] : transaction_data
-        }
+        yield (element["Property Name"], transaction_data)
 
 
 class AddressSeparatorFn(beam.DoFn):
@@ -51,7 +49,5 @@ class AddressSeparatorFn(beam.DoFn):
             ##TODO: Handle missing columns
             print(("Missing Columns", element, self.address_columns))
 
-        yield {
-            element["Property Name"] : data
-        }
+        yield (element["Property Name"], data)
 

@@ -7,6 +7,7 @@ import csv
 import apache_beam as beam
 from apache_beam.io import ReadFromText
 from apache_beam.options.pipeline_options import PipelineOptions
+from apache_beam.transforms.util import Distinct
 
 
 from custom_functions.PropertyIdentifierFn import PropertyIdentifierFn
@@ -63,7 +64,7 @@ if __name__ == "__main__":
     property_data = (
         data 
         | "Separating Property Address Data" >> beam.ParDo(AddressSeparatorFn())
-
+        #| "Removing Propery Address Data Duplicates" >> beam.GroupByKey()
     )
 
     """
