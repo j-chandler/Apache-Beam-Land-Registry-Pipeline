@@ -1,6 +1,7 @@
 
 import argparse
 import os
+import csv
 
 
 import apache_beam as beam
@@ -32,37 +33,42 @@ class PropertyIdentifierFn(beam.DoFn):
     def process(self, element):
         row = {}
 
-        try:
-            cells = element.split(",")
-
-            for i, data in cells.enumerate():
-                try:
-                    row[self.headers[i]] = data
-                except:
-                    print((i, data))
-                    #TODO: Handle Incorrect Column Amounts
+        for i, data in enumerate(element):
+            try:
+                row[self.headers[i]] = data.strip()
+            except:
+                print((i, data))
+                #TODO: Handle Incorrect Column Amounts
 
 
-            ###### Joining Cells To Create Overall Property Name #######
-            row["Property Name"] = """
-            {PAON} {SAON} {Street} {Locality} {City} {District} {County}
-            """.format(
-                PAON = row["PAON"],
-                SAON = row["SAON"],
-                Street = row["Street"],
-                Locality = row["Locality"],
-                City = row["Town/City"],
-                District = row["District"],
-                County = row["County"]
-            )
+        ###### Joining Cells To Create Overall Property Name #######
+        property_name = ""
+        address_order = [
+            row["PAON"],
+            row["SAON"],
+            row["Street"],
+            row["Locality"],
+            row["Town/City"],
+            row["District"],
+            row["County"]
+        ]
 
+        for placement in address_order:
+            if placement:
+                if not property_name:
+                    property_name = placement
 
-        except:
-            #TODO: Handle String Error Appropriately
-            print("Element Not A String")
+                else:
+                    property_name += " {}".format(placement)
+
+        row["Property Name"] = property_name
 
         yield row
 
+
+def parse_csv_data(element):
+    for line in csv.reader([element], delimiter=','):
+        return line
 
 
 if __name__ == "__main__":
@@ -96,7 +102,8 @@ if __name__ == "__main__":
 
     data = (
         p
-        | "Reading CSV Data" >> ReadFromText(args.input)
+        | "Reading CSV File" >> ReadFromText(args.input)
+        | "Parsing CSV Data" >> beam.Map(parse_csv_data)
         | "Creating Unique Property Key" >> beam.ParDo(PropertyIdentifierFn())
     )
 
