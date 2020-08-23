@@ -47,6 +47,7 @@ class PropertyIdentifierFn(beam.DoFn):
             row["County"]
         ]
 
+        ##### This skips blank values to make it easier to read and retrieve the object later
         for placement in address_order:
             if placement:
                 if not property_name:
